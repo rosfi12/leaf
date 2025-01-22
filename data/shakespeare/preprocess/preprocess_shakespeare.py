@@ -27,6 +27,7 @@ import os
 import random
 import re
 import sys
+import chardet
 RANDOM_SEED = 1234
 # Regular expression to capture an actors name, and line continuation
 CHARACTER_RE = re.compile(r'^  ([a-zA-Z][a-zA-Z ]*)\. (.*)')
@@ -92,6 +93,7 @@ def _split_into_plays(shakespeare_full):
                 i)
             comedy_of_errors = (title == 'THE COMEDY OF ERRORS')
             # Degenerate plays are removed at the end of the method.
+            
             plays.append((title, characters))
             continue
         match = _match_character_regex(line, comedy_of_errors)
@@ -124,7 +126,10 @@ def _split_into_plays(shakespeare_full):
             # Before 2646 are the sonnets, which we expect to discard.
             discarded_lines.append('%d:%s' % (i, line))
     # Remove degenerate "plays".
-    return [play for play in plays if len(play[1]) > 1], discarded_lines
+    print(f"Righe totali: {len(slines)}, Righe scartate: {len(discarded_lines)}")
+
+    return [play for play in plays if len(play[1]) >= 0], discarded_lines
+
 
 def _remove_nonalphanumerics(filename):
     return re.sub('\\W+', '_', filename)
@@ -185,12 +190,15 @@ def _write_data_by_character(examples, output_directory):
 def main(argv):
     print('Splitting .txt data between users')
     input_filename = argv[0]
-    with open(input_filename, 'r') as input_file:
+    with open(input_filename, 'r', encoding='utf-8') as input_file:
         shakespeare_full = input_file.read()
     plays, discarded_lines = _split_into_plays(shakespeare_full)
     print('Discarded %d lines' % len(discarded_lines))
     users_and_plays, all_examples, _ = _get_train_test_by_character(plays, test_fraction=-1.0)
+    print(users_and_plays)
     output_directory = argv[1]
+    print("Input file:", argv[0])
+    print("Output directory:", argv[1])
     with open(os.path.join(output_directory, 'users_and_plays.json'), 'w') as ouf:
         json.dump(users_and_plays, ouf)
     _write_data_by_character(all_examples,

@@ -14,7 +14,7 @@ fi
 
 if [ ! -d "../data/raw_data/by_play_and_character" ]; then
     echo "dividing txt data between users"
-    python3 preprocess_shakespeare.py ../data/raw_data/raw_data.txt ../data/raw_data/
+    python preprocess_shakespeare.py ../data/raw_data/raw_data.txt ../data/raw_data/
 fi
 
 RAWTAG=""
@@ -26,5 +26,5 @@ if [ ! -d "../data/all_data" ]; then
 fi
 if [ ! "$(ls -A ../data/all_data)" ]; then
     echo "generating all_data.json"
-    python3 gen_all_data.py $RAWTAG
+    python gen_all_data.py $RAWTAG
 fi
